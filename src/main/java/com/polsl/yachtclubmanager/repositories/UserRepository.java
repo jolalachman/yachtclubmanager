@@ -1,6 +1,6 @@
 package com.polsl.yachtclubmanager.repositories;
 
-import com.polsl.yachtclubmanager.models.User;
+import com.polsl.yachtclubmanager.models.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

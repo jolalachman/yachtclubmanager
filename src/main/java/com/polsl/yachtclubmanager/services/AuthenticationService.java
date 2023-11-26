@@ -5,9 +5,11 @@ import com.polsl.yachtclubmanager.models.dto.requests.AuthenticationRequest;
 import com.polsl.yachtclubmanager.models.dto.responses.AuthenticationResponse;
 import com.polsl.yachtclubmanager.models.dto.requests.RegisterRequest;
 import com.polsl.yachtclubmanager.enums.RoleName;
+import com.polsl.yachtclubmanager.models.entities.Role;
+import com.polsl.yachtclubmanager.repositories.RoleRepository;
 import com.polsl.yachtclubmanager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import com.polsl.yachtclubmanager.models.User;
+import com.polsl.yachtclubmanager.models.entities.User;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +22,8 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final RoleRepository roleRepository;
+
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
                 .firstName(request.getFirstName())
@@ -28,7 +32,8 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .enabled(false)
                 .nonLocked(true)
-                .roleName(RoleName.CANDIDATE)
+//                .roleName(RoleName.CANDIDATE)
+                .role(roleRepository.findByRoleName(RoleName.CANDIDATE))
                 .build();
         repository.save(user);
         var jwtToken = jwtService.generateToken(user);

@@ -1,4 +1,4 @@
-package com.polsl.yachtclubmanager.models;
+package com.polsl.yachtclubmanager.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;

@@ -1,11 +1,11 @@
-package com.polsl.yachtclubmanager.models;
+package com.polsl.yachtclubmanager.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.polsl.yachtclubmanager.enums.RoleName;
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.security.core.GrantedAuthority;
@@ -59,12 +59,18 @@ public class User implements UserDetails {
     @Column(name = "non_locked")
     private Boolean nonLocked;
 
-    @Column(name = "role_id")
-    private RoleName roleName;
+//    @Column(name = "role_id")
+//    private RoleName roleName;
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.RESTRICT)
+    @JoinColumn(name = "role_id")
+    @NotNull(message = "Role must be provided")
+    @JsonBackReference
+    private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(roleName.name()));
+        return List.of(new SimpleGrantedAuthority(role.getRoleName().name()));
     }
 
     @Override
