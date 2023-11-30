@@ -12,3 +12,23 @@ spring:
   sql:
     init:
       mode: always
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: yachtclubpolsl@gmail.com
+    password: tblo ohpr rpiq zmdy
+    default-encoding: UTF-8
+    properties:
+      mail:
+        mime:
+          chartset: UTF
+        smtp:
+          writetimeout: 100000
+          connectiontimeout: 100000
+          timeout: 100000
+          auth: true
+          starttls:
+            enable: true
+            required: true
+    verify:
+      host: http://localhost:8080

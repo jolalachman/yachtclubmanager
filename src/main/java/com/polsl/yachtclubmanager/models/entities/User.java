@@ -3,6 +3,7 @@ package com.polsl.yachtclubmanager.models.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.polsl.yachtclubmanager.enums.RoleName;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import jakarta.validation.constraints.NotBlank;
@@ -24,8 +25,7 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false, updatable = false)
     private Long userId;
 
@@ -48,6 +48,7 @@ public class User implements UserDetails {
 
     @NotBlank(message = "Email must not be blank")
     @Column(name = "email", nullable = false, unique = true)
+    @Email
     private String email;
 
     @Column(name = "password")
@@ -59,8 +60,6 @@ public class User implements UserDetails {
     @Column(name = "non_locked")
     private Boolean nonLocked;
 
-//    @Column(name = "role_id")
-//    private RoleName roleName;
     @ManyToOne
     @OnDelete(action = OnDeleteAction.RESTRICT)
     @JoinColumn(name = "role_id")

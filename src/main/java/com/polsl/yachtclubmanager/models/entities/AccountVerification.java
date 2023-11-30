@@ -1,14 +1,12 @@
 package com.polsl.yachtclubmanager.models.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "account_verifications")
@@ -18,18 +16,20 @@ import org.hibernate.annotations.OnDeleteAction;
 @RequiredArgsConstructor
 public class AccountVerification {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_verification_id", nullable = false)
     private Long accountVerificationId;
 
-    @Column(name = "url", unique = true)
-    private String url = null;
+    @Column(name = "token", unique = true)
+    private String token = null;
 
-    @ManyToOne
-    @OnDelete(action = OnDeleteAction.RESTRICT)
-    @JoinColumn(name = "user_id")
-    @NotNull(message = "User must be provided")
-    @JsonBackReference
+    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public AccountVerification(User user) {
+        this.user = user;
+        this.token = UUID.randomUUID().toString();
+    }
 
 }

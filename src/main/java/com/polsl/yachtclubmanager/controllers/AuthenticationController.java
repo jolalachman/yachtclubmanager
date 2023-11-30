@@ -1,18 +1,17 @@
 package com.polsl.yachtclubmanager.controllers;
 
+import com.polsl.yachtclubmanager.models.dto.requests.AccountVerifyRequest;
 import com.polsl.yachtclubmanager.models.dto.requests.AuthenticationRequest;
 import com.polsl.yachtclubmanager.models.dto.requests.RegisterRequest;
 import com.polsl.yachtclubmanager.models.dto.responses.AuthenticationResponse;
+import com.polsl.yachtclubmanager.models.entities.AccountVerification;
 import com.polsl.yachtclubmanager.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
@@ -30,4 +29,12 @@ public class AuthenticationController {
     ) {
         return ResponseEntity.ok(service.authenticate(request));
     }
+
+    @PatchMapping("/confirmUser")
+    public ResponseEntity<String> confirmUserAccount(@RequestBody AccountVerifyRequest request) {
+        String isSuccess = service.verifyToken(request);
+        return ResponseEntity.ok(isSuccess);
+    }
+
+
 }

@@ -1,16 +1,13 @@
 package com.polsl.yachtclubmanager.models.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Table(name = "reset_password_verifications")
@@ -20,20 +17,23 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ResetPasswordVerification {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "reset_password_id", nullable = false)
     private Long resetPasswordId;
 
-    @Column(name = "url", unique = true)
-    private String url = null;
+    @Column(name = "reset_token", unique = true)
+    private String resetToken = null;
 
     @Column(name = "expiration_date", nullable = false)
-    private LocalDateTime expirationDate;
+    private Date expirationDate;
 
-    @ManyToOne
-    @OnDelete(action = OnDeleteAction.RESTRICT)
-    @JoinColumn(name = "user_id")
-    @NotNull(message = "User must be provided")
-    @JsonBackReference
+    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public ResetPasswordVerification(User user) {
+        this.user = user;
+        this.resetToken = UUID.randomUUID().toString();
+        this.expirationDate = new Date(System.currentTimeMillis() + 1000 * 60 * 24);
+    }
 }

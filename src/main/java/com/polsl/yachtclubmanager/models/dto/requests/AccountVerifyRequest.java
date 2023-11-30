@@ -1,4 +1,4 @@
-package com.polsl.yachtclubmanager.models.dto.responses;
+package com.polsl.yachtclubmanager.models.dto.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
-    private String auth_token;
+public class AccountVerifyRequest {
+    private String token;
 }
