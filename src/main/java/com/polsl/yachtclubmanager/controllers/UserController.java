@@ -1,5 +1,6 @@
 package com.polsl.yachtclubmanager.controllers;
 
+import com.polsl.yachtclubmanager.models.dto.requests.ChangePasswordRequest;
 import com.polsl.yachtclubmanager.models.dto.requests.UserRequest;
 import com.polsl.yachtclubmanager.models.dto.responses.UserResponse;
 import com.polsl.yachtclubmanager.services.UserService;
@@ -19,8 +20,13 @@ public class UserController {
         return ResponseEntity.ok(service.getUser(userId));
     }
 
-    @PatchMapping
+    @PostMapping
     public ResponseEntity<UserResponse> editUser(@RequestBody UserRequest userRequest) {
         return ResponseEntity.ok(service.editUser(userRequest));
+    }
+
+    @PostMapping("/changePassword")
+    public ResponseEntity<Boolean> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
+        return ResponseEntity.ok(service.changePassword(changePasswordRequest));
     }
 }
