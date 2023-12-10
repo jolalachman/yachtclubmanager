@@ -9,7 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResetPasswordRequest {
-    private String resetToken;
-    private String newPassword;
+public class UserRequest {
+    private String id;
+    private String firstName;
+    private String lastName;
+    private String phone;
+    private String clubStatus;
+    private String sailingLicense;
 }

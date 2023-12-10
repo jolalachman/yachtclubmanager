@@ -41,7 +41,7 @@ public class User implements UserDetails {
     private String phone;
 
     @Column(name = "sailing_license")
-    private String sailingLicense = null;
+    private String sailingLicense;
 
     @Column(name = "club_status")
     private String clubStatus;

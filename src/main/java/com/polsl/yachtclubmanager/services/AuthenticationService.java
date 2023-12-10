@@ -37,6 +37,8 @@ public class AuthenticationService {
         var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
+                .clubStatus(request.getClubStatus())
+                .sailingLicense(request.getSailingLicense())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .enabled(false)
@@ -68,6 +70,9 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .auth_token(jwtToken)
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .id(user.getUserId().toString())
                 .build();
     }
 
@@ -81,13 +86,18 @@ public class AuthenticationService {
         return Boolean.TRUE.toString();
     }
 
-    public Boolean generateResetPasswordToken(Long userId) {
-        User user = userRepository.findByUserId(userId);
-        ResetPasswordVerification resetPasswordVerification = new ResetPasswordVerification(user);
-        resetPasswordVerificationRepository.save(resetPasswordVerification);
+    public Boolean generateResetPasswordToken(String email) {
+        User user = userRepository.findByEmailIgnoreCase(email);
+        if(user.getEnabled()) {
+            ResetPasswordVerification resetPasswordVerification = new ResetPasswordVerification(user);
+            resetPasswordVerificationRepository.save(resetPasswordVerification);
 
-        emailService.sendResetPasswordMail(user.getEmail(), resetPasswordVerification.getResetToken());
-        return Boolean.TRUE;
+            emailService.sendResetPasswordMail(user.getEmail(), resetPasswordVerification.getResetToken());
+            return Boolean.TRUE;
+        }
+        else {
+            return Boolean.FALSE;
+        }
     }
     public Boolean verifyResetPasswordToken(String token, String newPassword) {
         ResetPasswordVerification resetPasswordVerification = resetPasswordVerificationRepository

@@ -1,10 +1,7 @@
 package com.polsl.yachtclubmanager.controllers;
 
-import com.polsl.yachtclubmanager.models.dto.requests.AccountVerifyRequest;
-import com.polsl.yachtclubmanager.models.dto.requests.AuthenticationRequest;
-import com.polsl.yachtclubmanager.models.dto.requests.RegisterRequest;
+import com.polsl.yachtclubmanager.models.dto.requests.*;
 import com.polsl.yachtclubmanager.models.dto.responses.AuthenticationResponse;
-import com.polsl.yachtclubmanager.models.entities.AccountVerification;
 import com.polsl.yachtclubmanager.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -36,5 +33,15 @@ public class AuthenticationController {
         return ResponseEntity.ok(isSuccess);
     }
 
+    @PostMapping("/recoverPassword")
+    public ResponseEntity<Boolean> generateResetPassword(@RequestBody RecoverPasswordRequest request) {
+        Boolean isSuccess = service.generateResetPasswordToken(request.getEmail());
+        return ResponseEntity.ok(isSuccess);
+    }
 
+    @PostMapping("/resetPassword")
+    public ResponseEntity<Boolean> confirmResetPassword(@RequestBody ResetPasswordRequest request) {
+        Boolean isSuccess = service.verifyResetPasswordToken(request.getResetToken(), request.getNewPassword());
+        return ResponseEntity.ok(isSuccess);
+    }
 }
