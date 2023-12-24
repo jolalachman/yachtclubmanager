@@ -5,17 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
+public class ReservationRequest {
+    private String pickup;
+    private String dropoff;
 
-    private String firstName;
-    private String lastName;
-    private String clubStatus;
-    private Long sailingLicense;
-    private String email;
-    private String password;
+    private String reservingPerson;
 
+    private Long userId;
+    private Long yachtId;
 }

@@ -2,5 +2,8 @@ package com.polsl.yachtclubmanager.enums;
 
 public enum YachtStatusName {
     AVAILABLE,
-    IN_REPAIR
+    MALFUNCTION,
+    IN_REPAIR,
+    RESERVED_LONG_TERM,
+    IN_USE
 }

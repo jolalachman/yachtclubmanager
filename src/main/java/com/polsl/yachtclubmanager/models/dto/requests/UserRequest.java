@@ -15,5 +15,5 @@ public class UserRequest {
     private String lastName;
     private String phone;
     private String clubStatus;
-    private String sailingLicense;
+    private Long sailingLicenseId;
 }

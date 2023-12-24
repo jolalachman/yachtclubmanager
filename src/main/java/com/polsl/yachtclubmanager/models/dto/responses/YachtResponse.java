@@ -1,6 +1,9 @@
 package com.polsl.yachtclubmanager.models.dto.responses;
 
+import com.polsl.yachtclubmanager.models.entities.Equipment;
 import com.polsl.yachtclubmanager.models.entities.Reservation;
+import com.polsl.yachtclubmanager.models.entities.TechnicalData;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,14 +15,17 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class YachtsResponse {
+public class YachtResponse {
     private Long id;
     private String name;
     private String type;
     private String registrationNumber;
     private String currentStatus;
     private String photo;
-    private Integer cabinNum;
-    private Integer peopleNum;
+    private String description;
+    private TechnicalData technicalData;
+    private Equipment equipment;
     private List<Reservation> reservations;
+    private Float dailyPrice;
+    private Float hourlyPrice;
 }

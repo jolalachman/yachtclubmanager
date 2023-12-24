@@ -30,28 +30,32 @@ public class User implements UserDetails {
     private Long userId;
 
     @NotBlank(message = "First name must not be blank")
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name", nullable = false, columnDefinition = "VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String firstName;
 
     @NotBlank(message = "Last name must not be blank")
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name", nullable = false, columnDefinition = "VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String lastName;
 
     @Column(name = "phone")
     private String phone;
 
-    @Column(name = "sailing_license")
-    private String sailingLicense;
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.RESTRICT)
+    @JoinColumn(name = "sailing_license_id")
+    @NotNull(message = "Role must be provided")
+    @JsonBackReference
+    private SailingLicense sailingLicense;
 
-    @Column(name = "club_status")
+    @Column(name = "club_status", columnDefinition = "VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String clubStatus;
 
     @NotBlank(message = "Email must not be blank")
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true, columnDefinition = "VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     @Email
     private String email;
 
-    @Column(name = "password")
+    @Column(name = "password", columnDefinition = "VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String password;
 
     @Column(name = "enabled")

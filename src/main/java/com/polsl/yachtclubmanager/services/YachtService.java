@@ -5,13 +5,11 @@ import com.polsl.yachtclubmanager.enums.YachtStatusName;
 import com.polsl.yachtclubmanager.models.dto.other.PageInfo;
 import com.polsl.yachtclubmanager.models.dto.requests.YachtRequest;
 import com.polsl.yachtclubmanager.models.dto.responses.UserResponse;
+import com.polsl.yachtclubmanager.models.dto.responses.YachtResponse;
 import com.polsl.yachtclubmanager.models.dto.responses.YachtsListResponse;
 import com.polsl.yachtclubmanager.models.dto.responses.YachtsResponse;
 import com.polsl.yachtclubmanager.models.entities.*;
-import com.polsl.yachtclubmanager.repositories.EquipmentRepository;
-import com.polsl.yachtclubmanager.repositories.TechnicalDataRepository;
-import com.polsl.yachtclubmanager.repositories.YachtRepository;
-import com.polsl.yachtclubmanager.repositories.YachtStatusRepository;
+import com.polsl.yachtclubmanager.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +22,7 @@ public class YachtService {
     private final TechnicalDataRepository technicalDataRepository;
     private final EquipmentRepository equipmentRepository;
     private final YachtStatusRepository yachtStatusRepository;
+    private final ReservationRepository reservationRepository;
 
     public Boolean addYacht(YachtRequest yachtRequest) {
         var technicalDataTmp = TechnicalData.builder()
@@ -65,7 +64,7 @@ public class YachtService {
     public YachtsListResponse getYachts() {
         var yachts = yachtRepository.findAll();
         var items = yachts.stream()
-                    .map(this::mapToYachtResponse)
+                    .map(yacht -> mapToYachtResponse(yacht, technicalDataRepository.findByYacht(yacht)))
                     .collect(Collectors.toList());
         var pageInfo = PageInfo.builder()
                        .offset(0L)
@@ -79,7 +78,26 @@ public class YachtService {
                 .build();
     }
 
-    private YachtsResponse mapToYachtResponse(Yacht yacht) {
+    public YachtResponse getYacht(Long yachtId) {
+        var yacht = yachtRepository.findByYachtId(yachtId);
+        var technicalData = technicalDataRepository.findByYacht(yacht);
+        var equipment = equipmentRepository.findByYacht(yacht);
+        return YachtResponse.builder()
+                .id(yacht.getYachtId())
+                .name(yacht.getName())
+                .type(yacht.getType())
+                .registrationNumber(yacht.getRegistrationNumber())
+                .currentStatus(yacht.getYachtStatus().getYachtStatusName().toString())
+                .photo(yacht.getPhoto())
+                .description(yacht.getDescription())
+                .technicalData(technicalData)
+                .equipment(equipment)
+                .reservations(reservationRepository.findAllByYacht(yacht))
+                .dailyPrice(yacht.getDailyPrice())
+                .hourlyPrice(yacht.getHourlyPrice())
+                .build();
+    }
+    private YachtsResponse mapToYachtResponse(Yacht yacht, TechnicalData technicalData) {
         return YachtsResponse.builder()
                 .id(yacht.getYachtId())
                 .name(yacht.getName())
@@ -87,6 +105,9 @@ public class YachtService {
                 .registrationNumber(yacht.getRegistrationNumber())
                 .currentStatus(yacht.getYachtStatus().getYachtStatusName().toString())
                 .photo(yacht.getPhoto())
+                .cabinNum(technicalData.getCabinNumber())
+                .peopleNum(technicalData.getMaxPeople())
+                .reservations(reservationRepository.findAllByYacht(yacht))
                 .build();
     }
 }

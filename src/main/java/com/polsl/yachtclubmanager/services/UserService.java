@@ -4,6 +4,7 @@ import com.polsl.yachtclubmanager.models.dto.requests.ChangePasswordRequest;
 import com.polsl.yachtclubmanager.models.dto.requests.UserRequest;
 import com.polsl.yachtclubmanager.models.dto.responses.AuthenticationResponse;
 import com.polsl.yachtclubmanager.models.dto.responses.UserResponse;
+import com.polsl.yachtclubmanager.repositories.SailingLicenseRepository;
 import com.polsl.yachtclubmanager.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +18,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final SailingLicenseRepository sailingLicenseRepository;
+
     public UserResponse getUser(String userId) {
         var user = userRepository.findByUserId(Long.parseLong(userId));
         return UserResponse.builder()
@@ -24,7 +27,8 @@ public class UserService {
                 .lastName(user.getLastName())
                 .phone(user.getPhone())
                 .clubStatus(user.getClubStatus())
-                .sailingLicense(user.getSailingLicense())
+                .sailingLicenseName(user.getSailingLicense().getSailingLicenseName().toString())
+                .sailingLicenseId(user.getSailingLicense().getSailingLicenseId())
                 .build();
     }
 
@@ -34,14 +38,15 @@ public class UserService {
         user.setLastName(userRequest.getLastName());
         user.setPhone(userRequest.getPhone());
         user.setClubStatus(userRequest.getClubStatus());
-        user.setSailingLicense(userRequest.getSailingLicense());
+        user.setSailingLicense(sailingLicenseRepository.findBySailingLicenseId(userRequest.getSailingLicenseId()));
         userRepository.save(user);
         return UserResponse.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .phone(user.getPhone())
                 .clubStatus(user.getClubStatus())
-                .sailingLicense(user.getSailingLicense())
+                .sailingLicenseName(user.getSailingLicense().getSailingLicenseName().toString())
+                .sailingLicenseId(user.getSailingLicense().getSailingLicenseId())
                 .build();
     }
 

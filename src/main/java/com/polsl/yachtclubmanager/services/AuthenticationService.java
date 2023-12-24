@@ -8,10 +8,7 @@ import com.polsl.yachtclubmanager.models.dto.requests.RegisterRequest;
 import com.polsl.yachtclubmanager.enums.RoleName;
 import com.polsl.yachtclubmanager.models.entities.AccountVerification;
 import com.polsl.yachtclubmanager.models.entities.ResetPasswordVerification;
-import com.polsl.yachtclubmanager.repositories.AccountVerificationRepository;
-import com.polsl.yachtclubmanager.repositories.ResetPasswordVerificationRepository;
-import com.polsl.yachtclubmanager.repositories.RoleRepository;
-import com.polsl.yachtclubmanager.repositories.UserRepository;
+import com.polsl.yachtclubmanager.repositories.*;
 import lombok.RequiredArgsConstructor;
 import com.polsl.yachtclubmanager.models.entities.User;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,13 +29,14 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final EmailService emailService;
+    private final SailingLicenseRepository sailingLicenseRepository;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .clubStatus(request.getClubStatus())
-                .sailingLicense(request.getSailingLicense())
+                .sailingLicense(sailingLicenseRepository.findBySailingLicenseId(request.getSailingLicense()))
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .enabled(false)

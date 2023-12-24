@@ -2,10 +2,14 @@ package com.polsl.yachtclubmanager.controllers;
 
 import com.polsl.yachtclubmanager.models.dto.requests.*;
 import com.polsl.yachtclubmanager.models.dto.responses.AuthenticationResponse;
+import com.polsl.yachtclubmanager.models.dto.responses.DictionaryResponse;
 import com.polsl.yachtclubmanager.services.AuthenticationService;
+import com.polsl.yachtclubmanager.services.DictionaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -13,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService service;
+    private final DictionaryService dictionaryService;
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegisterRequest request
@@ -43,5 +48,10 @@ public class AuthenticationController {
     public ResponseEntity<Boolean> confirmResetPassword(@RequestBody ResetPasswordRequest request) {
         Boolean isSuccess = service.verifyResetPasswordToken(request.getResetToken(), request.getNewPassword());
         return ResponseEntity.ok(isSuccess);
+    }
+
+    @GetMapping("/sailingLicenses")
+    public ResponseEntity<List<DictionaryResponse>> getSailingLicenses() {
+        return ResponseEntity.ok(dictionaryService.getSailingLicenses());
     }
 }

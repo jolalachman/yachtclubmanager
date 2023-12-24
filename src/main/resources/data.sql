@@ -7,5 +7,21 @@ VALUES	  (0, 'CREATE:RESERVATION,READ:MY_RESERVATION,UPDATE:MY_RESERVATION,READ:
 
 INSERT INTO yacht_statuses (yacht_status_name)
 VALUES (0),
-       (1);
+       (1),
+       (2),
+       (3),
+       (4);
+
+INSERT INTO reservation_statuses(reservation_status_name)
+VALUES (0),
+       (1),
+       (2),
+       (3),
+       (4);
+
+INSERT INTO sailing_licenses(sailing_license_name)
+VALUES (0),
+       (1),
+       (2),
+       (3);
 

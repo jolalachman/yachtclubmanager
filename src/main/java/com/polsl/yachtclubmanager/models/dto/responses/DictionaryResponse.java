@@ -9,11 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse {
-    private String firstName;
-    private String lastName;
-    private String phone;
-    private String clubStatus;
-    private String sailingLicenseName;
-    private Long sailingLicenseId;
+public class DictionaryResponse {
+    private Long id;
+    private String name;
 }

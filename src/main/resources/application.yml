@@ -6,6 +6,12 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     show-sql: true
+    properties:
+      hibernate:
+        connection:
+          characterEncoding: utf8mb4
+          useUnicode: true
+          CharSet: utf8mb4
     hibernate:
       ddl-auto: create-drop
     defer-datasource-initialization: true
@@ -21,7 +27,7 @@ spring:
     properties:
       mail:
         mime:
-          chartset: UTF
+          charset: UTF-8
         smtp:
           writetimeout: 100000
           connectiontimeout: 100000

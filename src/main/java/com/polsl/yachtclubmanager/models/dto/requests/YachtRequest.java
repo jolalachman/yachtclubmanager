@@ -14,7 +14,6 @@ public class YachtRequest {
     private String type;
     private String registrationNumber;
     private String description;
-
     private String photo;
     private Float length;
     private Float width;

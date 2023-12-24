@@ -23,7 +23,7 @@ public class Yacht {
     private Long yachtId;
 
     @NotBlank(message = "Name must not be blank")
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, columnDefinition = "VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String name;
 
     @Column(name = "type")
@@ -40,10 +40,10 @@ public class Yacht {
     @Column(name = "photo", columnDefinition = "TEXT")
     private String photo;
 
-    @Column(name = "dailyPrice")
+    @Column(name = "daily_price")
     private Float dailyPrice;
 
-    @Column(name = "hourlyPrice")
+    @Column(name = "hourly_price")
     private Float hourlyPrice;
 
     @ManyToOne
