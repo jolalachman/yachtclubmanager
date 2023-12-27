@@ -1,4 +1,4 @@
-package com.polsl.yachtclubmanager.models.dto.responses;
+package com.polsl.yachtclubmanager.models.dto.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
-    private String auth_token;
+public class UserByAdminRequest {
+    private Long id;
     private String firstName;
     private String lastName;
-    private String id;
-    private String permission;
+    private String role;
+    private String clubStatus;
+    private String sailingLicense;
 }

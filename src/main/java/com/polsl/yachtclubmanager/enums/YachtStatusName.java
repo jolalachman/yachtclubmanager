@@ -5,5 +5,6 @@ public enum YachtStatusName {
     MALFUNCTION,
     IN_REPAIR,
     RESERVED_LONG_TERM,
-    IN_USE
+    IN_USE,
+    DEACTIVATED
 }

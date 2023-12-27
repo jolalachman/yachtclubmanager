@@ -3,6 +3,7 @@ package com.polsl.yachtclubmanager.services;
 import com.polsl.yachtclubmanager.config.JwtService;
 import com.polsl.yachtclubmanager.models.dto.requests.AccountVerifyRequest;
 import com.polsl.yachtclubmanager.models.dto.requests.AuthenticationRequest;
+import com.polsl.yachtclubmanager.models.dto.requests.RegisterByAdminRequest;
 import com.polsl.yachtclubmanager.models.dto.responses.AuthenticationResponse;
 import com.polsl.yachtclubmanager.models.dto.requests.RegisterRequest;
 import com.polsl.yachtclubmanager.enums.RoleName;
@@ -56,6 +57,31 @@ public class AuthenticationService {
                 .build();
     }
 
+    public AuthenticationResponse registerByAdmin(RegisterByAdminRequest request) {
+        var user = User.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .clubStatus(request.getClubStatus())
+                .sailingLicense(sailingLicenseRepository.findBySailingLicenseId(request.getSailingLicense()))
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .enabled(false)
+                .nonLocked(true)
+                .role(roleRepository.findByRoleName(RoleName.valueOf(request.getRole())))
+                .build();
+        userRepository.save(user);
+
+        AccountVerification accountVerification = new AccountVerification(user);
+        accountVerificationRepository.save(accountVerification);
+
+        emailService.sendAccountVerificationMail(user.getEmail(), accountVerification.getToken());
+
+        var jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .auth_token(jwtToken)
+                .build();
+    }
+
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -71,6 +97,7 @@ public class AuthenticationService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .id(user.getUserId().toString())
+                .permission(user.getRole().getPermission())
                 .build();
     }
 

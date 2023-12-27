@@ -34,6 +34,9 @@ public class Reservation {
     @Column(name = "reservingPerson", nullable = false)
     private String reservingPerson;
 
+    @Column(name = "peopleNumber", nullable = false)
+    private Integer peopleNumber;
+
     @ManyToOne
     @OnDelete(action = OnDeleteAction.RESTRICT)
     @JoinColumn(name = "yacht_id")

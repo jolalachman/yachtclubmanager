@@ -48,6 +48,7 @@ public class ReservationService {
     private ReservationsResponse mapToReservationResponse(Reservation reservation) {
         return ReservationsResponse.builder()
                 .id(reservation.getReservationId())
+                .peopleNumber(reservation.getPeopleNumber())
                 .pickupDate(reservation.getPickup())
                 .dropoffDate(reservation.getDropoff())
                 .yachtName(reservation.getYacht().getName())
@@ -67,7 +68,32 @@ public class ReservationService {
             Reservation reservation = Reservation.builder()
                     .pickup(pickupDateTime)
                     .dropoff(dropoffDateTime)
+                    .peopleNumber(reservationRequest.getPeopleNumber())
                     .reservationStatus(reservationStatusRepository.findByReservationStatusName(ReservationStatusName.CONFIRMED))
+                    .reservingPerson(reservationRequest.getReservingPerson())
+                    .user(userRepository.findByUserId(reservationRequest.getUserId()))
+                    .yacht(yachtRepository.findByYachtId(reservationRequest.getYachtId()))
+                    .build();
+
+            reservationRepository.save(reservation);
+            return Boolean.TRUE;
+        } catch (DateTimeParseException e) {
+            // Handle the exception - log or throw a custom exception
+            e.printStackTrace(); // Logging the exception for now
+            return Boolean.FALSE; // Indicate failure due to date parsing error
+        }
+    }
+
+    public Boolean addYachtReservation(ReservationRequest reservationRequest) {
+        try {
+            LocalDateTime pickupDateTime = convertToLocalDateTime(reservationRequest.getPickup());
+            LocalDateTime dropoffDateTime = convertToLocalDateTime(reservationRequest.getDropoff());
+
+            Reservation reservation = Reservation.builder()
+                    .pickup(pickupDateTime)
+                    .dropoff(dropoffDateTime)
+                    .peopleNumber(reservationRequest.getPeopleNumber())
+                    .reservationStatus(reservationStatusRepository.findByReservationStatusName(ReservationStatusName.PENDING))
                     .reservingPerson(reservationRequest.getReservingPerson())
                     .user(userRepository.findByUserId(reservationRequest.getUserId()))
                     .yacht(yachtRepository.findByYachtId(reservationRequest.getYachtId()))

@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SailingLicenseRepository extends JpaRepository<SailingLicense, Long> {
     @NotNull(message = "Sailing license must be provided") SailingLicense findBySailingLicenseId(Long sailingLicenseId);
+    @NotNull(message = "Sailing license must be provided") SailingLicense findBySailingLicenseName(SailingLicenseName sailingLicenseName);
 }

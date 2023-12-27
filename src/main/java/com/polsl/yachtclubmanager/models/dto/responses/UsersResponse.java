@@ -9,10 +9,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
-    private String auth_token;
+public class UsersResponse {
+    private Long id;
     private String firstName;
     private String lastName;
-    private String id;
-    private String permission;
+    private String email;
+    private String phone;
+    private String roleName;
+    private String clubStatus;
+    private String sailingLicenseName;
 }

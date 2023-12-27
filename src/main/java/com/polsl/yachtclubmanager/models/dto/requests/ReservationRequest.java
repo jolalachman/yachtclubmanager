@@ -15,6 +15,7 @@ public class ReservationRequest {
     private String pickup;
     private String dropoff;
 
+    private Integer peopleNumber;
     private String reservingPerson;
 
     private Long userId;

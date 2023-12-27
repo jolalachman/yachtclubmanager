@@ -5,5 +5,6 @@ public enum RoleName {
     SAILOR,
     MAT,
     BOSMAN,
-    ADMIN
+    ADMIN,
+    DEACTIVATED
 }

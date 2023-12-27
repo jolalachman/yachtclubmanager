@@ -21,4 +21,9 @@ public class ReservationsController {
     public ResponseEntity<Boolean> addReservation(@RequestBody ReservationRequest reservationRequest) {
         return ResponseEntity.ok(service.addReservation(reservationRequest));
     }
+
+    @PostMapping("/add")
+    public ResponseEntity<Boolean> addYachtReservation(@RequestBody ReservationRequest reservationRequest) {
+        return ResponseEntity.ok(service.addYachtReservation(reservationRequest));
+    }
 }
