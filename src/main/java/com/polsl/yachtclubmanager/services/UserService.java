@@ -1,5 +1,6 @@
 package com.polsl.yachtclubmanager.services;
 
+import com.polsl.yachtclubmanager.enums.ReservationStatusName;
 import com.polsl.yachtclubmanager.enums.RoleName;
 import com.polsl.yachtclubmanager.enums.SailingLicenseName;
 import com.polsl.yachtclubmanager.enums.YachtStatusName;
@@ -11,10 +12,7 @@ import com.polsl.yachtclubmanager.models.dto.responses.*;
 import com.polsl.yachtclubmanager.models.entities.Reservation;
 import com.polsl.yachtclubmanager.models.entities.Role;
 import com.polsl.yachtclubmanager.models.entities.User;
-import com.polsl.yachtclubmanager.repositories.ReservationRepository;
-import com.polsl.yachtclubmanager.repositories.RoleRepository;
-import com.polsl.yachtclubmanager.repositories.SailingLicenseRepository;
-import com.polsl.yachtclubmanager.repositories.UserRepository;
+import com.polsl.yachtclubmanager.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,6 +31,7 @@ public class UserService {
     private final SailingLicenseRepository sailingLicenseRepository;
     private final ReservationRepository reservationRepository;
     private final RoleRepository roleRepository;
+    private final ReservationStatusRepository reservationStatusRepository;
 
     public UsersListResponse getAllUsers() {
         var users = userRepository.findAll();
@@ -148,6 +147,10 @@ public class UserService {
             return Boolean.FALSE;
         }
         else {
+            var reservations = reservationRepository.findAllByUser(user);
+            reservations.stream()
+                    .map(reservation -> mapToCancelledStatus(reservation))
+                    .collect(Collectors.toList());
             user.setFirstName("-");
             user.setLastName("-");
             user.setPhone(null);
@@ -181,6 +184,15 @@ public class UserService {
                 .clubStatus(user.getClubStatus())
                 .sailingLicenseName(user.getSailingLicense().getSailingLicenseName().toString())
                 .build();
+    }
+
+    private Reservation mapToCancelledStatus(Reservation reservation) {
+        if (!reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.COMPLETED)) {
+            reservation.setReservationStatus(reservationStatusRepository.findByReservationStatusName(ReservationStatusName.CANCELLED));
+            reservation.setReservingPerson("-");
+            reservationRepository.save(reservation);
+        }
+        return reservation;
     }
 
     private ReservationResponse mapToReservationResponse(Reservation reservation) {

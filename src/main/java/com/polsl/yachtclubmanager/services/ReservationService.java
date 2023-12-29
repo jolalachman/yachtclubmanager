@@ -30,6 +30,7 @@ public class ReservationService {
     public ReservationsListResponse getReservations() {
         var reservations = reservationRepository.findAll();
         var items = reservations.stream()
+                .filter(reservation -> !reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.CANCELLED))
                 .map(this::mapToReservationResponse)
                 .collect(Collectors.toList());
         var pageInfo = PageInfo.builder()

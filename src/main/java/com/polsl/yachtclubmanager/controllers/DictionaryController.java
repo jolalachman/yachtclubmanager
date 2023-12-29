@@ -21,9 +21,34 @@ public class DictionaryController {
         return ResponseEntity.ok(service.getYachts());
     }
 
+    @GetMapping("/all-yachts")
+    public ResponseEntity<List<DictionaryResponse>> getAllYachts() {
+        return ResponseEntity.ok(service.getAllYachts());
+    }
+
+    @GetMapping("/all-reservations")
+    public ResponseEntity<List<DictionaryResponse>> getAllReservations() {
+        return ResponseEntity.ok(service.getAllReservations());
+    }
+
     @GetMapping("/users")
     public ResponseEntity<List<DictionaryResponse>> getUsers() {
         return ResponseEntity.ok(service.getUsers());
+    }
+
+    @GetMapping("/club-members")
+    public ResponseEntity<List<DictionaryResponse>> getClubMembers() {
+        return ResponseEntity.ok(service.getClubMembers());
+    }
+
+    @GetMapping("/reserving-users")
+    public ResponseEntity<List<DictionaryResponse>> getReservingUsers() {
+        return ResponseEntity.ok(service.getReservingUsers());
+    }
+
+    @GetMapping("/notice-statuses")
+    public ResponseEntity<List<DictionaryResponse>> getNoticeStatuses() {
+        return ResponseEntity.ok(service.getNoticeStatuses());
     }
 
 }

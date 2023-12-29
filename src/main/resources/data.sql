@@ -27,3 +27,7 @@ VALUES (0),
        (2),
        (3);
 
+INSERT INTO notice_statuses(notice_status_name)
+VALUES (0),
+       (1),
+       (2);

@@ -1,7 +1,7 @@
 package com.polsl.yachtclubmanager.enums;
 
 public enum ReservationStatusName {
-    CONFIRMED_PAYED,
+    COMPLETED,
     CONFIRMED,
     PENDING,
     CANCELLED,

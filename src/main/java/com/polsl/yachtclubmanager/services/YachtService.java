@@ -1,5 +1,6 @@
 package com.polsl.yachtclubmanager.services;
 
+import com.polsl.yachtclubmanager.enums.ReservationStatusName;
 import com.polsl.yachtclubmanager.enums.YachtStatusName;
 import com.polsl.yachtclubmanager.models.dto.other.PageInfo;
 import com.polsl.yachtclubmanager.models.dto.requests.ChangeStatusRequest;
@@ -123,6 +124,7 @@ public class YachtService {
         var equipment = equipmentRepository.findByYacht(yacht);
         var reservations = reservationRepository.findAllByYacht(yacht);
         var items = reservations.stream()
+                .filter(reservation -> !reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.CANCELLED))
                 .map(reservation -> mapToReservationResponse(reservation))
                 .collect(Collectors.toList());
         return YachtResponse.builder()

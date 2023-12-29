@@ -30,7 +30,7 @@ public class Yacht {
     private String type;
 
     @NotBlank(message = "Registration number must not be blank")
-    @Column(name = "registration_number", nullable = false)
+    @Column(name = "registration_number", nullable = false, unique = true)
     private String registrationNumber;
 
     @Column(name = "description", columnDefinition = "TEXT")
