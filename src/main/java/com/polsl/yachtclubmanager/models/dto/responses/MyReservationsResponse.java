@@ -11,15 +11,13 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReservationsResponse {
+public class MyReservationsResponse {
     private Long id;
     private LocalDateTime pickupDate;
     private LocalDateTime dropoffDate;
     private Integer peopleNumber;
     private Long yachtId;
     private String yachtName;
-    private String reservingPerson;
-    private String clientInfo;
     private DictionaryResponse currentStatus;
     private String photo;
 }

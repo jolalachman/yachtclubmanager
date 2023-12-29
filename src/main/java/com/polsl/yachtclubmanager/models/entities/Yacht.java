@@ -26,14 +26,18 @@ public class Yacht {
     @Column(name = "name", nullable = false, columnDefinition = "VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String name;
 
-    @Column(name = "type")
-    private String type;
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.RESTRICT)
+    @JoinColumn(name = "yacht_type_id")
+    @NotNull(message = "Yacht type must be provided")
+    @JsonBackReference
+    private YachtType yachtType;
 
     @NotBlank(message = "Registration number must not be blank")
-    @Column(name = "registration_number", nullable = false, unique = true)
+    @Column(name = "registration_number", nullable = false, unique = true, columnDefinition = "VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String registrationNumber;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String description;
 
     @Lob

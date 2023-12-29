@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class YachtRequest {
     private String name;
-    private String type;
+    private Long type;
     private String registrationNumber;
     private String description;
     private String photo;

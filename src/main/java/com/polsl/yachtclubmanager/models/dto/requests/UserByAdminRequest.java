@@ -15,5 +15,5 @@ public class UserByAdminRequest {
     private String lastName;
     private String role;
     private String clubStatus;
-    private String sailingLicense;
+    private Long sailingLicense;
 }

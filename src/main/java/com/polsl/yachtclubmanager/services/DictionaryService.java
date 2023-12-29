@@ -18,6 +18,11 @@ public class DictionaryService {
     private final SailingLicenseRepository sailingLicenseRepository;
     private final ReservationRepository reservationRepository;
     private final NoticeStatusRepository noticeStatusRepository;
+    private final ReservationStatusRepository reservationStatusRepository;
+
+    private final RoleRepository roleRepository;
+    private final YachtStatusRepository yachtStatusRepository;
+    private final YachtTypeRepository yachtTypeRepository;
 
     public List<DictionaryResponse> getAllReservations() {
         var reservations = reservationRepository.findAll();
@@ -139,6 +144,62 @@ public class DictionaryService {
                     DictionaryResponse response = new DictionaryResponse();
                     response.setId(status.getNoticeStatusId());
                     response.setName(status.getNoticeStatusName().toString());
+                    return response;
+                })
+                .collect(Collectors.toList());
+
+        return dictionaryResponses;
+    }
+
+    public List<DictionaryResponse> getReservationStatuses() {
+        var statuses = reservationStatusRepository.findAll();
+        List<DictionaryResponse> dictionaryResponses = statuses.stream()
+                .map(status -> {
+                    DictionaryResponse response = new DictionaryResponse();
+                    response.setId(status.getReservationStatusId());
+                    response.setName(status.getReservationStatusName().toString());
+                    return response;
+                })
+                .collect(Collectors.toList());
+
+        return dictionaryResponses;
+    }
+
+    public List<DictionaryResponse> getUserRoles() {
+        var roles = roleRepository.findAll();
+        List<DictionaryResponse> dictionaryResponses = roles.stream()
+                .map(role -> {
+                    DictionaryResponse response = new DictionaryResponse();
+                    response.setId(role.getRoleId());
+                    response.setName(role.getRoleName().toString());
+                    return response;
+                })
+                .collect(Collectors.toList());
+
+        return dictionaryResponses;
+    }
+
+    public List<DictionaryResponse> getYachtStatuses() {
+        var statuses = yachtStatusRepository.findAll();
+        List<DictionaryResponse> dictionaryResponses = statuses.stream()
+                .map(status -> {
+                    DictionaryResponse response = new DictionaryResponse();
+                    response.setId(status.getYachtStatusId());
+                    response.setName(status.getYachtStatusName().toString());
+                    return response;
+                })
+                .collect(Collectors.toList());
+
+        return dictionaryResponses;
+    }
+
+    public List<DictionaryResponse> getYachtTypes() {
+        var types = yachtTypeRepository.findAll();
+        List<DictionaryResponse> dictionaryResponses = types.stream()
+                .map(type -> {
+                    DictionaryResponse response = new DictionaryResponse();
+                    response.setId(type.getYachtTypeId());
+                    response.setName(type.getYachtTypeName().toString());
                     return response;
                 })
                 .collect(Collectors.toList());

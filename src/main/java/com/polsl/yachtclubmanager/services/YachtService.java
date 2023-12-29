@@ -2,14 +2,12 @@ package com.polsl.yachtclubmanager.services;
 
 import com.polsl.yachtclubmanager.enums.ReservationStatusName;
 import com.polsl.yachtclubmanager.enums.YachtStatusName;
+import com.polsl.yachtclubmanager.enums.YachtTypeName;
 import com.polsl.yachtclubmanager.models.dto.other.PageInfo;
 import com.polsl.yachtclubmanager.models.dto.requests.ChangeStatusRequest;
 import com.polsl.yachtclubmanager.models.dto.requests.EditYachtRequest;
 import com.polsl.yachtclubmanager.models.dto.requests.YachtRequest;
-import com.polsl.yachtclubmanager.models.dto.responses.ReservationResponse;
-import com.polsl.yachtclubmanager.models.dto.responses.YachtResponse;
-import com.polsl.yachtclubmanager.models.dto.responses.YachtsListResponse;
-import com.polsl.yachtclubmanager.models.dto.responses.YachtsResponse;
+import com.polsl.yachtclubmanager.models.dto.responses.*;
 import com.polsl.yachtclubmanager.models.entities.*;
 import com.polsl.yachtclubmanager.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +24,7 @@ public class YachtService {
     private final EquipmentRepository equipmentRepository;
     private final YachtStatusRepository yachtStatusRepository;
     private final ReservationRepository reservationRepository;
+    private final YachtTypeRepository yachtTypeRepository;
 
     public Boolean addYacht(YachtRequest yachtRequest) {
         var technicalDataTmp = TechnicalData.builder()
@@ -46,7 +45,7 @@ public class YachtService {
 
         var yacht = Yacht.builder()
                 .name(yachtRequest.getName())
-                .type(yachtRequest.getType())
+                .yachtType(yachtTypeRepository.findByYachtTypeId(yachtRequest.getType()))
                 .registrationNumber(yachtRequest.getRegistrationNumber())
                 .yachtStatus(yachtStatusRepository.findByYachtStatusName(YachtStatusName.AVAILABLE))
                 .description(yachtRequest.getDescription())
@@ -84,7 +83,7 @@ public class YachtService {
         technicalDataRepository.save(technicalData);
 
         yacht.setName(editYachtRequest.getName());
-        yacht.setType(editYachtRequest.getType());
+        yacht.setYachtType(yachtTypeRepository.findByYachtTypeName(YachtTypeName.valueOf(editYachtRequest.getType())));
         yacht.setRegistrationNumber(editYachtRequest.getRegistrationNumber());
         yacht.setDescription(editYachtRequest.getDescription());
         yacht.setPhoto(editYachtRequest.getPhoto());
@@ -127,12 +126,20 @@ public class YachtService {
                 .filter(reservation -> !reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.CANCELLED))
                 .map(reservation -> mapToReservationResponse(reservation))
                 .collect(Collectors.toList());
+        var yachtType = DictionaryResponse.builder()
+                .id(yacht.getYachtType().getYachtTypeId())
+                .name(yacht.getYachtType().getYachtTypeName().toString())
+                .build();
+        var currentStatus = DictionaryResponse.builder()
+                .id(yacht.getYachtStatus().getYachtStatusId())
+                .name(yacht.getYachtStatus().getYachtStatusName().toString())
+                .build();
         return YachtResponse.builder()
                 .id(yacht.getYachtId())
                 .name(yacht.getName())
-                .type(yacht.getType())
+                .type(yachtType)
                 .registrationNumber(yacht.getRegistrationNumber())
-                .currentStatus(yacht.getYachtStatus().getYachtStatusName().toString())
+                .currentStatus(currentStatus)
                 .photo(yacht.getPhoto())
                 .description(yacht.getDescription())
                 .technicalData(technicalData)
@@ -153,12 +160,20 @@ public class YachtService {
                 .build();
     }
     private YachtsResponse mapToYachtResponse(Yacht yacht, TechnicalData technicalData) {
+        var yachtType = DictionaryResponse.builder()
+                .id(yacht.getYachtType().getYachtTypeId())
+                .name(yacht.getYachtType().getYachtTypeName().toString())
+                .build();
+        var currentStatus = DictionaryResponse.builder()
+                .id(yacht.getYachtStatus().getYachtStatusId())
+                .name(yacht.getYachtStatus().getYachtStatusName().toString())
+                .build();
         return YachtsResponse.builder()
                 .id(yacht.getYachtId())
                 .name(yacht.getName())
-                .type(yacht.getType())
+                .type(yachtType)
                 .registrationNumber(yacht.getRegistrationNumber())
-                .currentStatus(yacht.getYachtStatus().getYachtStatusName().toString())
+                .currentStatus(currentStatus)
                 .photo(yacht.getPhoto())
                 .cabinNum(technicalData.getCabinNumber())
                 .peopleNum(technicalData.getMaxPeople())

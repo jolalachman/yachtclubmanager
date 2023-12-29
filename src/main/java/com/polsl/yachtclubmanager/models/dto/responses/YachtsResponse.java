@@ -15,9 +15,9 @@ import java.util.List;
 public class YachtsResponse {
     private Long id;
     private String name;
-    private String type;
+    private DictionaryResponse type;
     private String registrationNumber;
-    private String currentStatus;
+    private DictionaryResponse currentStatus;
     private String photo;
     private Integer cabinNum;
     private Integer peopleNum;

@@ -17,9 +17,8 @@ public class UserDetailsResponse {
     private String lastName;
     private String email;
     private String phone;
-    private String roleName;
+    private DictionaryResponse role;
     private String clubStatus;
-    private String sailingLicenseName;
-
+    private DictionaryResponse sailingLicense;
     private List<ReservationResponse> reservations;
 }

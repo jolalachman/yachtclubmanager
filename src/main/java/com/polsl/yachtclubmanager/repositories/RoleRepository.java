@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
     @NotNull(message = "Role must be provided") Role findByRoleName(RoleName roleName);
+    @NotNull(message = "Role must be provided") Role findByRoleId(Long roleId);
 }

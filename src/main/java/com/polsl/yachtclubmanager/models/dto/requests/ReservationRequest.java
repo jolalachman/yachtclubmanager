@@ -16,8 +16,7 @@ public class ReservationRequest {
     private String dropoff;
 
     private Integer peopleNumber;
-    private String reservingPerson;
-
+    private String reservingPersonId;
     private Long userId;
     private Long yachtId;
 }

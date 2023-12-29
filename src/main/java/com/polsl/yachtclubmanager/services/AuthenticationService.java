@@ -67,7 +67,7 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .enabled(false)
                 .nonLocked(true)
-                .role(roleRepository.findByRoleName(RoleName.valueOf(request.getRole())))
+                .role(roleRepository.findByRoleId(request.getRole()))
                 .build();
         userRepository.save(user);
 

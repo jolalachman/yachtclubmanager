@@ -14,6 +14,5 @@ public class UserResponse {
     private String lastName;
     private String phone;
     private String clubStatus;
-    private String sailingLicenseName;
-    private Long sailingLicenseId;
+    private DictionaryResponse sailingLicense;
 }

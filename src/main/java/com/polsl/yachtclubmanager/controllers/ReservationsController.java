@@ -1,6 +1,7 @@
 package com.polsl.yachtclubmanager.controllers;
 
 import com.polsl.yachtclubmanager.models.dto.requests.ReservationRequest;
+import com.polsl.yachtclubmanager.models.dto.responses.MyReservationsListResponse;
 import com.polsl.yachtclubmanager.models.dto.responses.ReservationsListResponse;
 import com.polsl.yachtclubmanager.services.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,11 @@ public class ReservationsController {
     @GetMapping
     public ResponseEntity<ReservationsListResponse> getReservations() {
         return ResponseEntity.ok(service.getReservations());
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<MyReservationsListResponse> getMyReservations(@RequestParam String userId) {
+        return ResponseEntity.ok(service.getMyReservations(userId));
     }
 
     @PostMapping

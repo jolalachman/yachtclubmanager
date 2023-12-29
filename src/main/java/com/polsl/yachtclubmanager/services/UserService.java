@@ -71,13 +71,16 @@ public class UserService {
 
     public UserResponse getUser(String userId) {
         var user = userRepository.findByUserId(Long.parseLong(userId));
+        var sailingLicence = DictionaryResponse.builder()
+                .id(user.getSailingLicense().getSailingLicenseId())
+                .name(user.getSailingLicense().getSailingLicenseName().toString())
+                .build();
         return UserResponse.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .phone(user.getPhone())
                 .clubStatus(user.getClubStatus())
-                .sailingLicenseName(user.getSailingLicense().getSailingLicenseName().toString())
-                .sailingLicenseId(user.getSailingLicense().getSailingLicenseId())
+                .sailingLicense(sailingLicence)
                 .build();
     }
 
@@ -87,15 +90,23 @@ public class UserService {
         var items = reservations.stream()
                 .map(reservation -> mapToReservationResponse(reservation))
                 .collect(Collectors.toList());
+        var role = DictionaryResponse.builder()
+                .id(user.getRole().getRoleId())
+                .name(user.getRole().getRoleName().toString())
+                .build();
+        var sailingLicense = DictionaryResponse.builder()
+                .id(user.getSailingLicense().getSailingLicenseId())
+                .name(user.getSailingLicense().getSailingLicenseName().toString())
+                .build();
         return UserDetailsResponse.builder()
                 .id(user.getUserId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
-                .roleName(user.getRole().getRoleName().toString())
+                .role(role)
                 .clubStatus(user.getClubStatus())
-                .sailingLicenseName(user.getSailingLicense().getSailingLicenseName().toString())
+                .sailingLicense(sailingLicense)
                 .reservations(items)
                 .build();
     }
@@ -108,13 +119,16 @@ public class UserService {
         user.setClubStatus(userRequest.getClubStatus());
         user.setSailingLicense(sailingLicenseRepository.findBySailingLicenseId(userRequest.getSailingLicenseId()));
         userRepository.save(user);
+        var sailingLicence = DictionaryResponse.builder()
+                .id(user.getSailingLicense().getSailingLicenseId())
+                .name(user.getSailingLicense().getSailingLicenseName().toString())
+                .build();
         return UserResponse.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .phone(user.getPhone())
                 .clubStatus(user.getClubStatus())
-                .sailingLicenseName(user.getSailingLicense().getSailingLicenseName().toString())
-                .sailingLicenseId(user.getSailingLicense().getSailingLicenseId())
+                .sailingLicense(sailingLicence)
                 .build();
     }
 
@@ -124,7 +138,7 @@ public class UserService {
         user.setLastName(userRequest.getLastName());
         user.setRole(roleRepository.findByRoleName(RoleName.valueOf(userRequest.getRole())));
         user.setClubStatus(userRequest.getClubStatus());
-        user.setSailingLicense(sailingLicenseRepository.findBySailingLicenseName(SailingLicenseName.valueOf(userRequest.getSailingLicense())));
+        user.setSailingLicense(sailingLicenseRepository.findBySailingLicenseId(userRequest.getSailingLicense()));
         userRepository.save(user);
         return Boolean.TRUE;
     }
@@ -174,6 +188,10 @@ public class UserService {
         }
     }
     private UsersResponse mapToUsersResponse(User user) {
+        var sailingLicence = DictionaryResponse.builder()
+                .id(user.getSailingLicense().getSailingLicenseId())
+                .name(user.getSailingLicense().getSailingLicenseName().toString())
+                .build();
         return UsersResponse.builder()
                 .id(user.getUserId())
                 .firstName(user.getFirstName())
@@ -182,14 +200,13 @@ public class UserService {
                 .phone(user.getPhone())
                 .roleName(user.getRole().getRoleName().toString())
                 .clubStatus(user.getClubStatus())
-                .sailingLicenseName(user.getSailingLicense().getSailingLicenseName().toString())
+                .sailingLicense(sailingLicence)
                 .build();
     }
 
     private Reservation mapToCancelledStatus(Reservation reservation) {
         if (!reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.COMPLETED)) {
             reservation.setReservationStatus(reservationStatusRepository.findByReservationStatusName(ReservationStatusName.CANCELLED));
-            reservation.setReservingPerson("-");
             reservationRepository.save(reservation);
         }
         return reservation;

@@ -27,7 +27,7 @@ public class Notice {
     @Column(name = "reported-at", nullable = false)
     private LocalDateTime reportedAt;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
     private String description;
 
     @ManyToOne

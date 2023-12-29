@@ -51,4 +51,24 @@ public class DictionaryController {
         return ResponseEntity.ok(service.getNoticeStatuses());
     }
 
+    @GetMapping("/reservation-statuses")
+    public ResponseEntity<List<DictionaryResponse>> getReservationStatuses() {
+        return ResponseEntity.ok(service.getReservationStatuses());
+    }
+
+    @GetMapping("/user-roles")
+    public ResponseEntity<List<DictionaryResponse>> getUserRoles() {
+        return ResponseEntity.ok(service.getUserRoles());
+    }
+
+    @GetMapping("/yacht-statuses")
+    public ResponseEntity<List<DictionaryResponse>> getYachtStatuses() {
+        return ResponseEntity.ok(service.getYachtStatuses());
+    }
+
+    @GetMapping("/yacht-types")
+    public ResponseEntity<List<DictionaryResponse>> getYachtTypes() {
+        return ResponseEntity.ok(service.getYachtTypes());
+    }
+
 }

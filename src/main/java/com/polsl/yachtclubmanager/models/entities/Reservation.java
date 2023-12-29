@@ -31,8 +31,6 @@ public class Reservation {
     @NotNull(message = "Drop off datetime must not be blank")
     @Column(name = "dropoff", nullable = false)
     private LocalDateTime dropoff;
-    @Column(name = "reservingPerson", nullable = false)
-    private String reservingPerson;
 
     @Column(name = "peopleNumber", nullable = false)
     private Integer peopleNumber;
@@ -50,6 +48,13 @@ public class Reservation {
     @NotNull(message = "User must be provided")
     @JsonBackReference
     private User user;
+
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.RESTRICT)
+    @JoinColumn(name = "reserving_person_id")
+    @NotNull(message = "Reserving person must be provided")
+    @JsonBackReference
+    private User reservingPerson;
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.RESTRICT)

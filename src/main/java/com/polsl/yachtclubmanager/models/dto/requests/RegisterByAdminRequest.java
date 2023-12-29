@@ -13,7 +13,7 @@ public class RegisterByAdminRequest {
 
     private String firstName;
     private String lastName;
-    private String role;
+    private Long role;
     private String clubStatus;
     private Long sailingLicense;
     private String email;
