@@ -27,6 +27,9 @@ public class Notice {
     @Column(name = "reported-at", nullable = false)
     private LocalDateTime reportedAt;
 
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
     @ManyToOne
     @OnDelete(action = OnDeleteAction.RESTRICT)
     @JoinColumn(name = "reservation_id")

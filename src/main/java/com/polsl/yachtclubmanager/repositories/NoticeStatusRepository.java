@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface NoticeStatusRepository extends JpaRepository<NoticeStatus, Long> {
     @NotNull(message="Notice status must be provided") NoticeStatus findByNoticeStatusName(NoticeStatusName noticeStatusName);
+    @NotNull(message="Notice status must be provided") NoticeStatus findByNoticeStatusId(Long noticeStatusId);
 }
