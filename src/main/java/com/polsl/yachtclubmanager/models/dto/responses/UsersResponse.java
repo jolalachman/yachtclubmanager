@@ -15,7 +15,7 @@ public class UsersResponse {
     private String lastName;
     private String email;
     private String phone;
-    private String roleName;
+    private DictionaryResponse role;
     private String clubStatus;
     private DictionaryResponse sailingLicense;
 }

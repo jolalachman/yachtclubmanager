@@ -5,16 +5,17 @@ import com.polsl.yachtclubmanager.models.dto.other.PageInfo;
 import com.polsl.yachtclubmanager.models.dto.requests.ReservationRequest;
 import com.polsl.yachtclubmanager.models.dto.responses.*;
 import com.polsl.yachtclubmanager.models.entities.Reservation;
-import com.polsl.yachtclubmanager.repositories.ReservationRepository;
-import com.polsl.yachtclubmanager.repositories.ReservationStatusRepository;
-import com.polsl.yachtclubmanager.repositories.UserRepository;
-import com.polsl.yachtclubmanager.repositories.YachtRepository;
+import com.polsl.yachtclubmanager.models.entities.ReservationStatusHistory;
+import com.polsl.yachtclubmanager.models.entities.YachtStatusHistory;
+import com.polsl.yachtclubmanager.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +26,7 @@ public class ReservationService {
     private final ReservationStatusRepository reservationStatusRepository;
     private final UserRepository userRepository;
     private final YachtRepository yachtRepository;
+    private final ReservationStatusHistoryRepository reservationStatusHistoryRepository;
 
     public ReservationsListResponse getReservations() {
         var reservations = reservationRepository.findAll();
@@ -65,6 +67,47 @@ public class ReservationService {
                 .build();
     }
 
+    public ReservationDetailsResponse getReservationDetails(String reservationId) {
+        var reservation = reservationRepository.findByReservationId(Long.parseLong(reservationId));
+        var yacht = DictionaryResponse.builder()
+                .id(reservation.getYacht().getYachtId())
+                .name(reservation.getYacht().getName())
+                .build();
+        var reservingPerson = DictionaryResponse.builder()
+                .id(reservation.getReservingPerson().getUserId())
+                .name(reservation.getReservingPerson().getFirstName() + " " + reservation.getReservingPerson().getLastName())
+                .build();
+
+        var clientInfo = DictionaryResponse.builder()
+                .id(reservation.getUser().getUserId())
+                .name(reservation.getUser().getFirstName() + " " + reservation.getUser().getLastName())
+                .build();
+
+        var currentStatus = DictionaryResponse.builder()
+                .id(reservation.getReservationStatus().getReservationStatusId())
+                .name(reservation.getReservationStatus().getReservationStatusName().toString())
+                .build();
+
+        var canReport = false;
+
+        if(reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.COMPLETED) && reservation.getDropoff().isBefore(LocalDateTime.now())) {
+            canReport = true;
+        }
+
+        return ReservationDetailsResponse.builder()
+                .id(reservation.getReservationId())
+                .peopleNumber(reservation.getPeopleNumber())
+                .pickupDate(reservation.getPickup())
+                .dropoffDate(reservation.getDropoff())
+                .yacht(yacht)
+                .reservingPerson(reservingPerson)
+                .clientInfo(clientInfo)
+                .currentStatus(currentStatus)
+                .photo(reservation.getYacht().getPhoto())
+                .canReportNotice(canReport)
+                .build();
+    }
+
     private ReservationsResponse mapToReservationResponse(Reservation reservation) {
         var currentStatus = DictionaryResponse.builder()
                 .id(reservation.getReservationStatus().getReservationStatusId())
@@ -100,6 +143,13 @@ public class ReservationService {
                     .build();
 
             reservationRepository.save(reservation);
+
+            var reservationHistory = ReservationStatusHistory.builder()
+                    .reservationStatusHistoryDate(LocalDateTime.now())
+                    .reservationStatus(reservation.getReservationStatus())
+                    .reservation(reservation)
+                    .build();
+            reservationStatusHistoryRepository.save(reservationHistory);
             return Boolean.TRUE;
         } catch (DateTimeParseException e) {
             // Handle the exception - log or throw a custom exception
@@ -124,6 +174,13 @@ public class ReservationService {
                     .build();
 
             reservationRepository.save(reservation);
+
+            var reservationHistory = ReservationStatusHistory.builder()
+                    .reservationStatusHistoryDate(LocalDateTime.now())
+                    .reservationStatus(reservation.getReservationStatus())
+                    .reservation(reservation)
+                    .build();
+            reservationStatusHistoryRepository.save(reservationHistory);
             return Boolean.TRUE;
         } catch (DateTimeParseException e) {
             // Handle the exception - log or throw a custom exception
@@ -153,5 +210,31 @@ public class ReservationService {
                 .photo(reservation.getYacht().getPhoto())
                 .build();
     }
+
+//    public changeReservationStatus() {
+//        var reservationHistory = ReservationStatusHistory.builder()
+//                .reservationStatusHistoryDate(LocalDateTime.now())
+//                .reservationStatus(reservation.getReservationStatus())
+//                .reservation(reservation)
+//                .build();
+//        reservationStatusHistoryRepository.save(reservationHistory);
+//    }
+
+    public List<ReservationStatusHistoryResponse> getReservationStatusHistory(Long reservationId) {
+        var reservation = reservationRepository.findByReservationId(reservationId);
+        var reservationStatusHistory = reservationStatusHistoryRepository.findAllByReservation(reservation);
+        var items = reservationStatusHistory.stream()
+                .map(this::mapToStatusHistoryResponse)
+                .collect(Collectors.toList());
+        return items;
+    }
+
+    private ReservationStatusHistoryResponse mapToStatusHistoryResponse(ReservationStatusHistory reservationStatusHistory) {
+        return ReservationStatusHistoryResponse.builder()
+                .statusDate(reservationStatusHistory.getReservationStatusHistoryDate())
+                .statusName(reservationStatusHistory.getReservationStatus().getReservationStatusName().toString())
+                .build();
+    }
+
 
 }

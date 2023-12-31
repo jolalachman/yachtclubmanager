@@ -6,5 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface YachtStatusRepository extends JpaRepository<YachtStatus, Long> {
-    @NotNull(message="Yacht status must be provided repooo") YachtStatus findByYachtStatusName(YachtStatusName yachtStatusName);
+    @NotNull(message="Yacht status must be provided") YachtStatus findByYachtStatusName(YachtStatusName yachtStatusName);
+    @NotNull(message="Yacht status must be provided") YachtStatus findByYachtStatusId(Long yachtStatusId);
 }

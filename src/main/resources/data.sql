@@ -19,7 +19,8 @@ VALUES (0),
        (1),
        (2),
        (3),
-       (4);
+       (4),
+       (5);
 
 INSERT INTO sailing_licenses(sailing_license_name)
 VALUES (0),

@@ -3,10 +3,13 @@ package com.polsl.yachtclubmanager.controllers;
 import com.polsl.yachtclubmanager.models.dto.requests.ChangeStatusRequest;
 import com.polsl.yachtclubmanager.models.dto.requests.EditYachtRequest;
 import com.polsl.yachtclubmanager.models.dto.responses.YachtResponse;
+import com.polsl.yachtclubmanager.models.dto.responses.YachtStatusHistoryResponse;
 import com.polsl.yachtclubmanager.services.YachtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/yacht")
@@ -32,4 +35,10 @@ public class YachtController {
     public ResponseEntity<Boolean> changeYachtStatus(@RequestBody ChangeStatusRequest changeStatusRequest) {
         return ResponseEntity.ok(service.changeYachtStatus(changeStatusRequest));
     }
+
+    @GetMapping("/history")
+    public ResponseEntity<List<YachtStatusHistoryResponse>> getYachtStatusHistory(@RequestParam Long yachtId) {
+        return ResponseEntity.ok(service.getYachtStatusHistory(yachtId));
+    }
+
 }

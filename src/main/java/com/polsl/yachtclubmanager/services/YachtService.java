@@ -13,6 +13,7 @@ import com.polsl.yachtclubmanager.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,8 +26,15 @@ public class YachtService {
     private final YachtStatusRepository yachtStatusRepository;
     private final ReservationRepository reservationRepository;
     private final YachtTypeRepository yachtTypeRepository;
+    private final ReservationStatusRepository reservationStatusRepository;
+    private final EmailService emailService;
+    private final YachtStatusHistoryRepository yachtStatusHistoryRepository;
 
     public Boolean addYacht(YachtRequest yachtRequest) {
+        var yachtCheck = yachtRepository.findByRegistrationNumber(yachtRequest.getRegistrationNumber());
+        if (yachtCheck.isPresent()) {
+            return Boolean.FALSE;
+        }
         var technicalDataTmp = TechnicalData.builder()
                 .length(yachtRequest.getLength())
                 .width(yachtRequest.getWidth())
@@ -54,6 +62,14 @@ public class YachtService {
                 .hourlyPrice(yachtRequest.getHourlyPrice())
                 .build();
         yachtRepository.save(yacht);
+
+        var yachtHistory = YachtStatusHistory.builder()
+                .yachtStatusHistoryDate(LocalDateTime.now())
+                .yachtStatus(yacht.getYachtStatus())
+                .yacht(yacht)
+                .build();
+
+        yachtStatusHistoryRepository.save(yachtHistory);
 
         TechnicalData technicalData = new TechnicalData(yacht, technicalDataTmp);
         technicalDataRepository.save(technicalData);
@@ -83,7 +99,7 @@ public class YachtService {
         technicalDataRepository.save(technicalData);
 
         yacht.setName(editYachtRequest.getName());
-        yacht.setYachtType(yachtTypeRepository.findByYachtTypeName(YachtTypeName.valueOf(editYachtRequest.getType())));
+        yacht.setYachtType(yachtTypeRepository.findByYachtTypeId(Long.parseLong(editYachtRequest.getType())));
         yacht.setRegistrationNumber(editYachtRequest.getRegistrationNumber());
         yacht.setDescription(editYachtRequest.getDescription());
         yacht.setPhoto(editYachtRequest.getPhoto());
@@ -96,6 +112,20 @@ public class YachtService {
     public Boolean deactivateYacht(Long yachtId) {
         var yacht = yachtRepository.findByYachtId(yachtId);
         yacht.setYachtStatus(yachtStatusRepository.findByYachtStatusName(YachtStatusName.DEACTIVATED));
+        var yachtHistory = YachtStatusHistory.builder()
+                .yachtStatusHistoryDate(LocalDateTime.now())
+                .yachtStatus(yacht.getYachtStatus())
+                .yacht(yacht)
+                .build();
+
+        yachtStatusHistoryRepository.save(yachtHistory);
+        var reservations = reservationRepository.findAllByYacht(yacht);
+        var items = reservations.stream()
+                .filter(reservation -> reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.PENDING) ||
+                        reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.CONFIRMED))
+                .map(this::setCancelledStatus)
+                .toList();
+
         yachtRepository.save(yacht);
         return Boolean.TRUE;
     }
@@ -116,7 +146,6 @@ public class YachtService {
                 .totalCount(totalCount)
                 .build();
     }
-
     public YachtResponse getYacht(Long yachtId) {
         var yacht = yachtRepository.findByYachtId(yachtId);
         var technicalData = technicalDataRepository.findByYacht(yacht);
@@ -149,7 +178,6 @@ public class YachtService {
                 .hourlyPrice(yacht.getHourlyPrice())
                 .build();
     }
-
     private ReservationResponse mapToReservationResponse(Reservation reservation) {
         return ReservationResponse.builder()
                 .id(reservation.getReservationId())
@@ -180,11 +208,41 @@ public class YachtService {
                 .reservations(reservationRepository.findAllByYacht(yacht))
                 .build();
     }
-
     public Boolean changeYachtStatus(ChangeStatusRequest changeStatusRequest) {
         var yacht = yachtRepository.findByYachtId(changeStatusRequest.getId());
-        yacht.setYachtStatus(yachtStatusRepository.findByYachtStatusName(YachtStatusName.valueOf(changeStatusRequest.getStatus())));
+        yacht.setYachtStatus(yachtStatusRepository.findByYachtStatusId(Long.parseLong(changeStatusRequest.getStatus())));
         yachtRepository.save(yacht);
+        var yachtHistory = YachtStatusHistory.builder()
+                .yachtStatusHistoryDate(LocalDateTime.now())
+                .yachtStatus(yacht.getYachtStatus())
+                .yacht(yacht)
+                .build();
+
+        yachtStatusHistoryRepository.save(yachtHistory);
         return Boolean.TRUE;
     }
+
+    private Reservation setCancelledStatus(Reservation reservation) {
+        reservation.setReservationStatus(reservationStatusRepository.findByReservationStatusName(ReservationStatusName.CANCELLED));
+        reservationRepository.save(reservation);
+        emailService.sendReservationCancelled(reservation.getUser().getEmail(), reservation.getYacht().getName(), '#'+reservation.getReservationId().toString());
+        return reservation;
+    }
+
+    public List<YachtStatusHistoryResponse> getYachtStatusHistory(Long yachtId) {
+        var yacht = yachtRepository.findByYachtId(yachtId);
+        var yachtStatusHistory = yachtStatusHistoryRepository.findAllByYacht(yacht);
+        var items = yachtStatusHistory.stream()
+                .map(history -> mapToStatusHistoryResponse(history))
+                .collect(Collectors.toList());
+        return items;
+    }
+
+    private YachtStatusHistoryResponse mapToStatusHistoryResponse(YachtStatusHistory yachtStatusHistory) {
+        return YachtStatusHistoryResponse.builder()
+                .statusDate(yachtStatusHistory.getYachtStatusHistoryDate())
+                .statusName(yachtStatusHistory.getYachtStatus().getYachtStatusName().toString())
+                .build();
+    }
+
 }

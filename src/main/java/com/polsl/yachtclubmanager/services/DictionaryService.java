@@ -30,7 +30,7 @@ public class DictionaryService {
                 .map(reservation -> {
                     DictionaryResponse response = new DictionaryResponse();
                     response.setId(reservation.getReservationId());
-                    response.setName("#"+reservation.getReservationId());
+                    response.setName("#"+reservation.getReservationId()+" - "+reservation.getYacht().getName());
                     return response;
                 })
                 .collect(Collectors.toList());
@@ -40,6 +40,9 @@ public class DictionaryService {
     public List<DictionaryResponse> getAllYachts() {
         var yachts = yachtRepository.findAll();
         List<DictionaryResponse> dictionaryResponses = yachts.stream()
+                .filter(yacht -> !(
+                                yacht.getYachtStatus().getYachtStatusName().equals(YachtStatusName.DEACTIVATED)
+                ))
                 .map(yacht -> {
                     DictionaryResponse response = new DictionaryResponse();
                     response.setId(yacht.getYachtId());
@@ -93,7 +96,8 @@ public class DictionaryService {
         List<DictionaryResponse> dictionaryResponses = users.stream()
                 .filter(user -> !(
                         user.getRole().getRoleName().equals(RoleName.ADMIN) ||
-                                user.getRole().getRoleName().equals(RoleName.CANDIDATE)
+                                user.getRole().getRoleName().equals(RoleName.CANDIDATE) ||
+                                user.getRole().getRoleName().equals(RoleName.DEACTIVATED)
                 ))
                 .map(user -> {
                     DictionaryResponse response = new DictionaryResponse();
@@ -168,6 +172,7 @@ public class DictionaryService {
     public List<DictionaryResponse> getUserRoles() {
         var roles = roleRepository.findAll();
         List<DictionaryResponse> dictionaryResponses = roles.stream()
+                .filter(role -> !(role.getRoleName().equals(RoleName.DEACTIVATED)))
                 .map(role -> {
                     DictionaryResponse response = new DictionaryResponse();
                     response.setId(role.getRoleId());
@@ -182,6 +187,7 @@ public class DictionaryService {
     public List<DictionaryResponse> getYachtStatuses() {
         var statuses = yachtStatusRepository.findAll();
         List<DictionaryResponse> dictionaryResponses = statuses.stream()
+                .filter(status -> !(status.getYachtStatusName().equals(YachtStatusName.DEACTIVATED)))
                 .map(status -> {
                     DictionaryResponse response = new DictionaryResponse();
                     response.setId(status.getYachtStatusId());

@@ -32,6 +32,7 @@ public class UserService {
     private final ReservationRepository reservationRepository;
     private final RoleRepository roleRepository;
     private final ReservationStatusRepository reservationStatusRepository;
+    private final EmailService emailService;
 
     public UsersListResponse getAllUsers() {
         var users = userRepository.findAll();
@@ -136,7 +137,7 @@ public class UserService {
         var user = userRepository.findByUserId(userRequest.getId());
         user.setFirstName(userRequest.getFirstName());
         user.setLastName(userRequest.getLastName());
-        user.setRole(roleRepository.findByRoleName(RoleName.valueOf(userRequest.getRole())));
+        user.setRole(roleRepository.findByRoleId(Long.parseLong(userRequest.getRole())));
         user.setClubStatus(userRequest.getClubStatus());
         user.setSailingLicense(sailingLicenseRepository.findBySailingLicenseId(userRequest.getSailingLicense()));
         userRepository.save(user);
@@ -154,7 +155,6 @@ public class UserService {
         userRepository.save(user);
         return Boolean.TRUE;
     }
-
     public Boolean deactivateUser(String userId) {
         var user = userRepository.findByUserId(Long.parseLong(userId));
         if (user.getRole().getRoleName().equals(RoleName.ADMIN) || user.getRole().getRoleName().equals(RoleName.DEACTIVATED)) {
@@ -163,7 +163,9 @@ public class UserService {
         else {
             var reservations = reservationRepository.findAllByUser(user);
             reservations.stream()
-                    .map(reservation -> mapToCancelledStatus(reservation))
+                    .filter(reservation -> reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.PENDING) ||
+                        reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.CONFIRMED))
+                    .map(this::mapToCancelledStatus)
                     .collect(Collectors.toList());
             user.setFirstName("-");
             user.setLastName("-");
@@ -173,6 +175,7 @@ public class UserService {
             user.setNonLocked(false);
             user.setRole(roleRepository.findByRoleName(RoleName.DEACTIVATED));
             userRepository.save(user);
+            emailService.sendUserDeactivated(user.getEmail());
             return Boolean.TRUE;
         }
     }
@@ -188,6 +191,10 @@ public class UserService {
         }
     }
     private UsersResponse mapToUsersResponse(User user) {
+        var role = DictionaryResponse.builder()
+                .id(user.getRole().getRoleId())
+                .name(user.getRole().getRoleName().toString())
+                .build();
         var sailingLicence = DictionaryResponse.builder()
                 .id(user.getSailingLicense().getSailingLicenseId())
                 .name(user.getSailingLicense().getSailingLicenseName().toString())
@@ -198,7 +205,7 @@ public class UserService {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phone(user.getPhone())
-                .roleName(user.getRole().getRoleName().toString())
+                .role(role)
                 .clubStatus(user.getClubStatus())
                 .sailingLicense(sailingLicence)
                 .build();

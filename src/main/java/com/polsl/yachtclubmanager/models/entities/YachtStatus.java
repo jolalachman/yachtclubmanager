@@ -5,6 +5,8 @@ import com.polsl.yachtclubmanager.enums.YachtStatusName;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Getter
 @Setter

@@ -1,12 +1,13 @@
 package com.polsl.yachtclubmanager.controllers;
 
 import com.polsl.yachtclubmanager.models.dto.requests.ReservationRequest;
-import com.polsl.yachtclubmanager.models.dto.responses.MyReservationsListResponse;
-import com.polsl.yachtclubmanager.models.dto.responses.ReservationsListResponse;
+import com.polsl.yachtclubmanager.models.dto.responses.*;
 import com.polsl.yachtclubmanager.services.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
@@ -23,6 +24,11 @@ public class ReservationsController {
         return ResponseEntity.ok(service.getMyReservations(userId));
     }
 
+    @GetMapping("/details")
+    public ResponseEntity<ReservationDetailsResponse> getReservationDetails(@RequestParam String reservationId) {
+        return ResponseEntity.ok(service.getReservationDetails(reservationId));
+    }
+
     @PostMapping
     public ResponseEntity<Boolean> addReservation(@RequestBody ReservationRequest reservationRequest) {
         return ResponseEntity.ok(service.addReservation(reservationRequest));
@@ -31,5 +37,10 @@ public class ReservationsController {
     @PostMapping("/add")
     public ResponseEntity<Boolean> addYachtReservation(@RequestBody ReservationRequest reservationRequest) {
         return ResponseEntity.ok(service.addYachtReservation(reservationRequest));
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<List<ReservationStatusHistoryResponse>> getReservationStatusHistory(@RequestParam Long reservationId) {
+        return ResponseEntity.ok(service.getReservationStatusHistory(reservationId));
     }
 }

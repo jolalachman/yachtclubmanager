@@ -41,4 +41,30 @@ public class EmailService {
             throw new RuntimeException(exception.getMessage());
         }
     }
+
+    public void sendReservationCancelled(String to, String yachtName, String reservationName) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setSubject("Reservation cancelled");
+            message.setFrom(fromEmail);
+            message.setTo(to);
+            message.setText(getReservationCancelledMessage(yachtName, reservationName));
+            emailSender.send(message);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
+    }
+
+    public void sendUserDeactivated(String to) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setSubject("User deactivated");
+            message.setFrom(fromEmail);
+            message.setTo(to);
+            message.setText("User account linked to this email has been deactivated by admin");
+            emailSender.send(message);
+        } catch (Exception exception) {
+            throw new RuntimeException(exception.getMessage());
+        }
+    }
 }
