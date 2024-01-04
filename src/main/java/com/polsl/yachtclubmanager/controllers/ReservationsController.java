@@ -1,5 +1,7 @@
 package com.polsl.yachtclubmanager.controllers;
 
+import com.polsl.yachtclubmanager.models.dto.requests.ChangeStatusRequest;
+import com.polsl.yachtclubmanager.models.dto.requests.ReportReservationNoticeRequest;
 import com.polsl.yachtclubmanager.models.dto.requests.ReservationRequest;
 import com.polsl.yachtclubmanager.models.dto.responses.*;
 import com.polsl.yachtclubmanager.services.ReservationService;
@@ -42,5 +44,30 @@ public class ReservationsController {
     @GetMapping("/history")
     public ResponseEntity<List<ReservationStatusHistoryResponse>> getReservationStatusHistory(@RequestParam Long reservationId) {
         return ResponseEntity.ok(service.getReservationStatusHistory(reservationId));
+    }
+
+    @PostMapping("/report-notice")
+    public ResponseEntity<Boolean> reportReservationNotice(@RequestBody ReportReservationNoticeRequest request) {
+        return ResponseEntity.ok(service.reportReservationNotice(request));
+    }
+
+    @GetMapping("/reported-notice")
+    public ResponseEntity<ReservationNoticeResponse> getReservationNotice(@RequestParam String reservationId) {
+        return ResponseEntity.ok(service.getReservationNotice(reservationId));
+    }
+
+    @PostMapping("/change-status")
+    public ResponseEntity<Boolean> changeReservationStatus(@RequestBody ChangeStatusRequest request) {
+        return ResponseEntity.ok(service.changeReservationStatus(request));
+    }
+
+    @PostMapping("/give")
+    public ResponseEntity<Boolean> giveReservation(@RequestParam String reservationId) {
+        return ResponseEntity.ok(service.giveReservation(reservationId));
+    }
+
+    @PostMapping("/complete")
+    public ResponseEntity<Boolean> completeReservation(@RequestParam String reservationId) {
+        return ResponseEntity.ok(service.completeReservation(reservationId));
     }
 }

@@ -1,9 +1,14 @@
 package com.polsl.yachtclubmanager.services;
 
+import com.polsl.yachtclubmanager.enums.NoticeStatusName;
 import com.polsl.yachtclubmanager.enums.ReservationStatusName;
+import com.polsl.yachtclubmanager.enums.YachtStatusName;
 import com.polsl.yachtclubmanager.models.dto.other.PageInfo;
+import com.polsl.yachtclubmanager.models.dto.requests.ChangeStatusRequest;
+import com.polsl.yachtclubmanager.models.dto.requests.ReportReservationNoticeRequest;
 import com.polsl.yachtclubmanager.models.dto.requests.ReservationRequest;
 import com.polsl.yachtclubmanager.models.dto.responses.*;
+import com.polsl.yachtclubmanager.models.entities.Notice;
 import com.polsl.yachtclubmanager.models.entities.Reservation;
 import com.polsl.yachtclubmanager.models.entities.ReservationStatusHistory;
 import com.polsl.yachtclubmanager.models.entities.YachtStatusHistory;
@@ -27,6 +32,11 @@ public class ReservationService {
     private final UserRepository userRepository;
     private final YachtRepository yachtRepository;
     private final ReservationStatusHistoryRepository reservationStatusHistoryRepository;
+    private final TechnicalDataRepository technicalDataRepository;
+    private final NoticeRepository noticeRepository;
+    private final NoticeStatusRepository noticeStatusRepository;
+    private final YachtStatusRepository yachtStatusRepository;
+    private final YachtStatusHistoryRepository yachtStatusHistoryRepository;
 
     public ReservationsListResponse getReservations() {
         var reservations = reservationRepository.findAll();
@@ -87,12 +97,10 @@ public class ReservationService {
                 .id(reservation.getReservationStatus().getReservationStatusId())
                 .name(reservation.getReservationStatus().getReservationStatusName().toString())
                 .build();
-
-        var canReport = false;
-
-        if(reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.COMPLETED) && reservation.getDropoff().isBefore(LocalDateTime.now())) {
-            canReport = true;
-        }
+        var notices = noticeRepository.findAllByReservation(reservation);
+        var canReport = (reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.RES_COMPLETED) && (reservation.getDropoff().isBefore(LocalDateTime.now()) && LocalDateTime.now().isBefore(reservation.getDropoff().plusDays(2))) && notices.size() == 0);
+        var maxYachtPeople = technicalDataRepository.findByYacht(reservation.getYacht()).getMaxPeople();
+        var showPeopleNumberWarning = (maxYachtPeople != null) && (reservation.getPeopleNumber() > maxYachtPeople) && (reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.PENDING));
 
         return ReservationDetailsResponse.builder()
                 .id(reservation.getReservationId())
@@ -100,11 +108,13 @@ public class ReservationService {
                 .pickupDate(reservation.getPickup())
                 .dropoffDate(reservation.getDropoff())
                 .yacht(yacht)
+                .yachtStatus(reservation.getYacht().getYachtStatus().getYachtStatusName().toString())
                 .reservingPerson(reservingPerson)
                 .clientInfo(clientInfo)
                 .currentStatus(currentStatus)
                 .photo(reservation.getYacht().getPhoto())
                 .canReportNotice(canReport)
+                .showPeopleNumberWarning(showPeopleNumberWarning)
                 .build();
     }
 
@@ -211,14 +221,71 @@ public class ReservationService {
                 .build();
     }
 
-//    public changeReservationStatus() {
-//        var reservationHistory = ReservationStatusHistory.builder()
-//                .reservationStatusHistoryDate(LocalDateTime.now())
-//                .reservationStatus(reservation.getReservationStatus())
-//                .reservation(reservation)
-//                .build();
-//        reservationStatusHistoryRepository.save(reservationHistory);
-//    }
+    public Boolean changeReservationStatus(ChangeStatusRequest request) {
+        var reservation = reservationRepository.findByReservationId(request.getId());
+        reservation.setReservationStatus(reservationStatusRepository.findByReservationStatusName(ReservationStatusName.valueOf(request.getStatus())));
+        reservationRepository.save(reservation);
+        var reservationHistory = ReservationStatusHistory.builder()
+                .reservationStatusHistoryDate(LocalDateTime.now())
+                .reservationStatus(reservation.getReservationStatus())
+                .reservation(reservation)
+                .build();
+        reservationStatusHistoryRepository.save(reservationHistory);
+        return Boolean.TRUE;
+    }
+
+    public Boolean giveReservation(String reservationId) {
+        var reservation = reservationRepository.findByReservationId(Long.parseLong(reservationId));
+        reservation.setReservationStatus(reservationStatusRepository.findByReservationStatusName(ReservationStatusName.IN_COMPLETION));
+        reservationRepository.save(reservation);
+
+        var yacht = yachtRepository.findByYachtId(reservation.getYacht().getYachtId());
+        if (reservation.getPickup().getDayOfYear() == reservation.getDropoff().getDayOfYear()) {
+            yacht.setYachtStatus(yachtStatusRepository.findByYachtStatusName(YachtStatusName.IN_USE));
+        }
+        else {
+            yacht.setYachtStatus(yachtStatusRepository.findByYachtStatusName(YachtStatusName.RESERVED_LONG_TERM));
+        }
+        yachtRepository.save(yacht);
+        var yachtHistory = YachtStatusHistory.builder()
+                .yachtStatusHistoryDate(LocalDateTime.now())
+                .yachtStatus(yacht.getYachtStatus())
+                .yacht(yacht)
+                .build();
+        yachtStatusHistoryRepository.save(yachtHistory);
+
+        var reservationHistory = ReservationStatusHistory.builder()
+                .reservationStatusHistoryDate(LocalDateTime.now())
+                .reservationStatus(reservation.getReservationStatus())
+                .reservation(reservation)
+                .build();
+        reservationStatusHistoryRepository.save(reservationHistory);
+        return Boolean.TRUE;
+    }
+
+    public Boolean completeReservation(String reservationId) {
+        var reservation = reservationRepository.findByReservationId(Long.parseLong(reservationId));
+        reservation.setReservationStatus(reservationStatusRepository.findByReservationStatusName(ReservationStatusName.RES_COMPLETED));
+        reservationRepository.save(reservation);
+
+        var yacht = yachtRepository.findByYachtId(reservation.getYacht().getYachtId());
+        yacht.setYachtStatus(yachtStatusRepository.findByYachtStatusName(YachtStatusName.AVAILABLE));
+        yachtRepository.save(yacht);
+        var yachtHistory = YachtStatusHistory.builder()
+                .yachtStatusHistoryDate(LocalDateTime.now())
+                .yachtStatus(yacht.getYachtStatus())
+                .yacht(yacht)
+                .build();
+        yachtStatusHistoryRepository.save(yachtHistory);
+
+        var reservationHistory = ReservationStatusHistory.builder()
+                .reservationStatusHistoryDate(LocalDateTime.now())
+                .reservationStatus(reservation.getReservationStatus())
+                .reservation(reservation)
+                .build();
+        reservationStatusHistoryRepository.save(reservationHistory);
+        return Boolean.TRUE;
+    }
 
     public List<ReservationStatusHistoryResponse> getReservationStatusHistory(Long reservationId) {
         var reservation = reservationRepository.findByReservationId(reservationId);
@@ -236,5 +303,35 @@ public class ReservationService {
                 .build();
     }
 
+    public Boolean reportReservationNotice(ReportReservationNoticeRequest request) {
+        var reservation = reservationRepository.findByReservationId(request.getReservationId());
+        var notice = Notice.builder()
+                .reportedAt(LocalDateTime.now())
+                .description(request.getDescription())
+                .reservation(reservation)
+                .noticeStatus(noticeStatusRepository.findByNoticeStatusName(NoticeStatusName.NEW))
+                .build();
+        noticeRepository.save(notice);
+        return  Boolean.TRUE;
+    }
 
+    public ReservationNoticeResponse getReservationNotice(String reservationId) {
+        var reservation = reservationRepository.findByReservationId(Long.parseLong(reservationId));
+        var noticeOpt = noticeRepository.findByReservation(reservation);
+        if (noticeOpt.isPresent()) {
+            Notice notice = noticeOpt.get();
+            var currentStatus = DictionaryResponse.builder()
+                    .id(notice.getNoticeStatus().getNoticeStatusId())
+                    .name(notice.getNoticeStatus().getNoticeStatusName().toString())
+                    .build();
+            return ReservationNoticeResponse.builder()
+                    .id(notice.getNoticeId())
+                    .reportedAt(notice.getReportedAt())
+                    .currentStatus(currentStatus)
+                    .build();
+        }
+        else {
+            return null;
+        }
+    }
 }

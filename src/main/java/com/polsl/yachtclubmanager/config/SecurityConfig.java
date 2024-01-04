@@ -3,6 +3,7 @@ package com.polsl.yachtclubmanager.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,6 +37,9 @@ public class SecurityConfig {
                 })
                 .and()
                 .authorizeHttpRequests()
+                .requestMatchers(HttpMethod.GET, "/api/v1/yachts").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/yacht/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/dictionary/**").permitAll()
                 .requestMatchers("/api/v1/auth/**")
                 .permitAll()
                 .anyRequest()

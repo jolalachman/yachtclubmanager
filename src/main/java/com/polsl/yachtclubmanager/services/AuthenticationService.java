@@ -9,14 +9,17 @@ import com.polsl.yachtclubmanager.models.dto.requests.RegisterRequest;
 import com.polsl.yachtclubmanager.enums.RoleName;
 import com.polsl.yachtclubmanager.models.entities.AccountVerification;
 import com.polsl.yachtclubmanager.models.entities.ResetPasswordVerification;
+import com.polsl.yachtclubmanager.models.entities.WrongAuthentication;
 import com.polsl.yachtclubmanager.repositories.*;
 import lombok.RequiredArgsConstructor;
 import com.polsl.yachtclubmanager.models.entities.User;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Service
@@ -31,6 +34,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final EmailService emailService;
     private final SailingLicenseRepository sailingLicenseRepository;
+    private final WrongAuthenticationRepository wrongAuthenticationRepository;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
@@ -83,22 +87,39 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .auth_token(jwtToken)
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .id(user.getUserId().toString())
-                .permission(user.getRole().getPermission())
-                .build();
+        var wrongAuthentications = wrongAuthenticationRepository.findAllByUser(user);
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+            var jwtToken = jwtService.generateToken(user);
+            wrongAuthenticationRepository.deleteAllInBatch(wrongAuthentications);
+            return AuthenticationResponse.builder()
+                    .auth_token(jwtToken)
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .id(user.getUserId().toString())
+                    .role(user.getRole().getRoleName().toString())
+                    .build();
+        } catch (AuthenticationException e) {
+            if (wrongAuthentications.size() < 5) {
+                var newWrongAuthentication = WrongAuthentication.builder()
+                        .wrongAuthenticationDate(LocalDateTime.now())
+                        .user(user)
+                        .build();
+                wrongAuthenticationRepository.save(newWrongAuthentication);
+            }
+            else {
+                user.setNonLocked(false);
+                userRepository.save(user);
+            }
+        }
+        return null;
     }
 
     public String verifyToken(AccountVerifyRequest request) {

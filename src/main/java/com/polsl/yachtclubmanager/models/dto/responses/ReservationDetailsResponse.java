@@ -17,10 +17,12 @@ public class ReservationDetailsResponse {
     private LocalDateTime dropoffDate;
     private Integer peopleNumber;
     private DictionaryResponse yacht;
+    private String yachtStatus;
     private DictionaryResponse reservingPerson;
     private DictionaryResponse clientInfo;
     private DictionaryResponse currentStatus;
     private String photo;
 
     private Boolean canReportNotice;
+    private Boolean showPeopleNumberWarning;
 }

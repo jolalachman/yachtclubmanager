@@ -212,7 +212,7 @@ public class UserService {
     }
 
     private Reservation mapToCancelledStatus(Reservation reservation) {
-        if (!reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.COMPLETED)) {
+        if (!reservation.getReservationStatus().getReservationStatusName().equals(ReservationStatusName.RES_COMPLETED)) {
             reservation.setReservationStatus(reservationStatusRepository.findByReservationStatusName(ReservationStatusName.CANCELLED));
             reservationRepository.save(reservation);
         }

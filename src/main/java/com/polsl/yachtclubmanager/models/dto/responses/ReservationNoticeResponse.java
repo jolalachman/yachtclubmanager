@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
-    private String auth_token;
-    private String firstName;
-    private String lastName;
-    private String id;
-    private String role;
+public class ReservationNoticeResponse {
+    private Long id;
+    private LocalDateTime reportedAt;
+    private DictionaryResponse currentStatus;
 }

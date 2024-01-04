@@ -1,7 +1,7 @@
 package com.polsl.yachtclubmanager.enums;
 
 public enum ReservationStatusName {
-    COMPLETED,
+    RES_COMPLETED,
     IN_COMPLETION,
     CONFIRMED,
     PENDING,
