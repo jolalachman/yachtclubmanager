@@ -13,7 +13,7 @@ spring:
           useUnicode: true
           CharSet: utf8mb4
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     defer-datasource-initialization: true
   sql:
     init:
