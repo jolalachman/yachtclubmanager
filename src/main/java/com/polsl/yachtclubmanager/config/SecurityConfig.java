@@ -26,6 +26,7 @@ public class SecurityConfig {
                 .cors().configurationSource(request -> {
                     CorsConfiguration corsConfig = new CorsConfiguration();
                     corsConfig.addAllowedOrigin("http://localhost:4200");
+                    corsConfig.addAllowedOrigin("http://18.192.42.117");
                     corsConfig.addAllowedMethod("GET");
                     corsConfig.addAllowedMethod("POST");
                     corsConfig.addAllowedMethod("PUT");
