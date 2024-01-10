@@ -1,7 +1,7 @@
 spring:
   datasource:
     url: jdbc:mariadb://yachtclubdb.c5g8su8m6qt4.eu-central-1.rds.amazonaws.com:3308/yachtclub
-    password: N1mlaL5hMAgy84BzeK47
+    password: 
     username: admin
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
